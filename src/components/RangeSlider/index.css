@@ -1,0 +1,31 @@
+
+.range_flex {
+  display: flex;
+  vertical-align: middle;
+  align-items: center;
+  margin: 10px 0;
+}
+.range_label {
+  width: 62px;
+  margin-right: 10px;
+}
+.range_item {
+  flex: 1;
+}
+.range_item_input {
+  width: 60px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-left: 10px;
+}
+.range_input {
+  width: 100%;
+}
+.input {
+  width: 100%;
+  height: 25px;
+  line-height: 25px;
+  border: none;
+  padding: 0 5px;
+  background: none;
+}

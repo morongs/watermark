@@ -13,9 +13,9 @@
     "dxc-upload": "^1.0.3",
     "fs-alert": "^0.3.0",
     "qq-share": "^1.0.1",
-    "react": "^16.2.0",
+    "react": "16.13.0",
     "react-color": "^2.14.1",
-    "react-dom": "^16.2.0"
+    "react-dom": "16.13.0"
   },
   "devDependencies": {
     "babel-plugin-dva-hmr": "^0.4.1",
