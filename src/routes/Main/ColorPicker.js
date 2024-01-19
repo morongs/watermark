@@ -16,7 +16,7 @@ export default class ColorPicker extends React.Component {
     return (
       <div style={{ position: "relative" }}>
         <Block vertical="center">
-          <div style={{ width: labelWidth }}>字体颜色:</div>
+          <div style={{ width: labelWidth, textAlign: 'center' }}>字体颜色:</div>
           <div
             onClick={this.handleClick}
             style={{ padding: 5, border: "1px solid #ddd", borderRadius: 2, marginLeft: 10 }}

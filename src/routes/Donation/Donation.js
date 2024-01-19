@@ -1,6 +1,6 @@
 import React from "react";
 import Block from "dxc-flex";
-import DonationItem from "./DonationItem";
+// import DonationItem from "./DonationItem";
 
 export default class Donation extends React.Component {
   render() {

@@ -1,18 +1,21 @@
 import React from "react";
-import Upload, { filesToDataURL } from "dxc-upload";
 import Watermark from "./Watermark";
 import Block from "dxc-flex";
 import Button from "./Button";
-import { Input, normalize } from "dxc-input";
+import { Input } from "dxc-input";
 import ColorPicker from "./ColorPicker";
 import Alpha from "./Alpha";
 import example from "./example.jpg";
 import styles from "./Main.css";
+import Upload from "../../components/Upload";
 import RangeSlider from "../../components/RangeSlider/RangeSlider";
+import { filesToDataURL } from "../../utils/utils";
 
 const labelWidth = 72;
 
 export default class Main extends React.Component {
+  watermark = [];
+  mainCanvas = [];
   state = {
     isExist: true,
     text: "仅用于办理住房公积金，他用无效。",
@@ -21,34 +24,82 @@ export default class Main extends React.Component {
     fontSize: 22,
     watermarkWidth: 350,
     watermarkHeight: 180,
+    fileNumber: 1,
   };
   componentDidMount() {
-    this.watermark = new Watermark(this.mainCanvas);
+    this.watermark = [new Watermark(this.mainCanvas[0])];
     this.setOptions();
-    this.watermark.draw(example);
+    this.watermark[0].draw(example);
   }
   onChangeFile = (files) => {
+    if (files.length > 1) {
+      // 设置多个canvas
+      this.setState(
+        {
+          fileNumber: files.length,
+        },
+        () => {
+          this.watermark = [];
+          // 遍历设置画布水印数据
+          files.forEach((item, i) => {
+            this.watermark.push(new Watermark(this.mainCanvas[i]));
+          });
+          this.getDataURL(files);
+        }
+      );
+    } else {
+      this.getDataURL(files);
+    }
+  };
+  getDataURL = (files) => {
     filesToDataURL(files).then((dataUrls) => {
-      this.watermark.draw(dataUrls[0]);
+      // 有多个文件
+      if (dataUrls.length > 1) {
+        dataUrls.forEach((item, index) => {
+          // 渲染
+          this.watermark[index].draw(item);
+        });
+      } else {
+        this.watermark[0].draw(dataUrls[0]);
+      }
       this.setState({ isExist: true });
     });
   };
   rotate = () => {
-    this.watermark.rotate();
+    if (this.watermark.length > 1) {
+      this.watermark.forEach((item) => {
+        item.rotate();
+      });
+    } else {
+      this.watermark[0].rotate();
+    }
   };
-  save = () => {
-    this.watermark.save();
+  save = async () => {
+    if (this.watermark.length > 1) {
+      for (let index = 0; index < this.watermark.length; index++) {
+        await this.watermark[index].save();
+      }
+    } else {
+      await this.watermark[0].save();
+    }
   };
-  setOptions = () => {
+  setOptions = (index = 0) => {
     const { text, rgb, fontSize, watermarkWidth, watermarkHeight } = this.state;
     const fillStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${rgb.a})`;
-    this.watermark.setOptions({
+    const options = {
       text,
       fillStyle,
       fontSize,
       watermarkWidth,
       watermarkHeight,
-    });
+    };
+    if (this.watermark.length > 1) {
+      this.watermark.forEach((item) => {
+        item.setOptions(options);
+      });
+    } else {
+      this.watermark[index].setOptions(options);
+    }
   };
   onChangeText = (key, value) => {
     this.setState({ [key]: value }, () => {
@@ -78,14 +129,30 @@ export default class Main extends React.Component {
       watermarkWidth,
     } = this.state;
     return (
-      <Block horizontal="center">
+      <Block
+        horizontal="center"
+        style={{
+          // position: "sticky",
+          // top: "0",
+          // background: "#fff",
+          paddingTop: "20px",
+        }}
+      >
         <div style={{ width: 345 }}>
           <Block>
-            <Upload onChange={this.onChangeFile}>
+            <Upload multiple onChange={this.onChangeFile}>
               <Button>选择文件</Button>
             </Upload>
-            {isExist ? <Button onClick={this.rotate}>旋转</Button> : null}
-            {isExist ? <Button onClick={this.save}>保存</Button> : null}
+            {isExist ? <Button onClick={this.rotate}>旋转图片</Button> : null}
+            {isExist ? (
+              <Button
+                onClick={() => {
+                  this.save();
+                }}
+              >
+                保存图片
+              </Button>
+            ) : null}
           </Block>
           <Input
             labelWidth={labelWidth}
@@ -135,14 +202,22 @@ export default class Main extends React.Component {
     );
   };
   render() {
+    const { fileNumber } = this.state;
+    const list = Array(fileNumber).fill(1);
     return (
-      <Block className={styles.main_box} style={{ marginTop: 30 }}>
+      <Block className={styles.main_box}>
         {this.renderControl()}
-        <div className={styles.canvas_box} style={{ flex: 1, minWidth: 345 }}>
-          <canvas
-            style={{ width: "100%" }}
-            ref={(mainCanvas) => (this.mainCanvas = mainCanvas)}
-          />
+        <div
+          className={styles.canvas_box}
+          style={{ flex: 1, minWidth: 345, paddingTop: "20px" }}
+        >
+          {list.map((item, i) => (
+            <canvas
+              key={i}
+              style={{ width: "100%" }}
+              ref={(mainCanvas) => (this.mainCanvas[i] = mainCanvas)}
+            />
+          ))}
         </div>
       </Block>
     );

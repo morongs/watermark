@@ -7,7 +7,7 @@ export default class Alpha extends React.Component {
     const { color, onChange, labelWidth } = this.props;
     return (
       <Block style={{ marginTop: 15 }}>
-        <div style={{ width: labelWidth, marginRight: 20 }}>透明度:</div>
+        <div style={{ width: labelWidth, textAlign: 'center', marginRight: 20 }}>透明度:</div>
         <AlphaPicker onChange={onChange} color={color} />
       </Block>
     );

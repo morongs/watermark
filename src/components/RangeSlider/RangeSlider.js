@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Input, normalize } from "dxc-input";
 import styles from "./index.css";
 
 const RangeSlider = (props) => {
@@ -39,7 +38,7 @@ const RangeSlider = (props) => {
 
   return (
     <div className={styles.range_flex}>
-      <div className={styles.range_label} style={{ width: labelWidth }}>
+      <div className={styles.range_label} style={{ width: labelWidth, textAlign: 'center' }}>
         {label}
       </div>
       <div className={styles.range_item}>
