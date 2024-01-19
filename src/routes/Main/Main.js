@@ -12,6 +12,7 @@ import RangeSlider from "../../components/RangeSlider/RangeSlider";
 import { filesToDataURL } from "../../utils/utils";
 
 const labelWidth = 72;
+let lock = false;
 
 export default class Main extends React.Component {
   watermark = [];
@@ -74,14 +75,19 @@ export default class Main extends React.Component {
       this.watermark[0].rotate();
     }
   };
-  save = async () => {
-    if (this.watermark.length > 1) {
-      for (let index = 0; index < this.watermark.length; index++) {
-        await this.watermark[index].save();
+  save = () => {
+    if (lock === false) {
+      lock = true; // 防止多点
+      if (this.watermark.length > 1) {
+        const length = this.watermark.length;
+        for (let index = 0; index < length; index++) {
+          this.watermark[index].save("more", index === length - 1);
+        }
+      } else {
+        this.watermark[0].save();
       }
-    } else {
-      await this.watermark[0].save();
     }
+    lock = false;
   };
   setOptions = (index = 0) => {
     const { text, rgb, fontSize, watermarkWidth, watermarkHeight } = this.state;

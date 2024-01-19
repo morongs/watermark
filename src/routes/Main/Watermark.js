@@ -138,15 +138,11 @@ function Watermark(canvas, opt = {}) {
     step >= 3 ? (step = 0) : step++;
     _draw();
   };
-  this.save = async (onOk) => {
+  this.save = (saveType = 'sigle', isEnd = false) => {
     if (!img) {
       return;
     }
-    return new Promise((resolve, reject) => {
-      Canvas2Image.saveAsJPEG(canvas, undefined, undefined, () => {
-        resolve();
-      })
-    });
+    Canvas2Image.saveAsJPEG(canvas, undefined, undefined, saveType, isEnd);
   };
   this.setOptions = (obj = {}) => {
     userOptions = obj;

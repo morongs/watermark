@@ -1,4 +1,7 @@
-var Canvas2Image = (function () {
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
+
+const Canvas2Image = (function () {
   // check if support sth.
   var $support = (function () {
     var canvas = document.createElement("canvas"),
@@ -37,23 +40,18 @@ var Canvas2Image = (function () {
     return canvas.toDataURL(type);
   }
 
+  function getDataBlob(canvas, width, height, cb) {
+    canvas = scaleCanvas(canvas, width, height);
+    return canvas.toBlob((blob) => {
+      cb(blob);
+    });
+  }
+
   function saveFile(strData, onOk) {
     var aLink = document.createElement("a");
     aLink.download = "watermark.jpg";
     aLink.href = strData;
     aLink.click();
-    // // 当前设备是移动设备
-    // if (
-    //   /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    //     navigator.userAgent
-    //   )
-    // ) {
-    //   aLink.onload(() => {
-    //     onOk();
-    //     URL.revokeObjectURL(aLink.href);
-    //   });
-    // } else
-
     if (typeof onOk === "function") {
       onOk();
     }
@@ -99,7 +97,7 @@ var Canvas2Image = (function () {
    * create bitmap image
    * 按照规则生成图片响应头和响应体
    */
-  var genBitmapImage = function (oData) {
+  const genBitmapImage = function (oData) {
     //
     // BITMAPFILEHEADER: http://msdn.microsoft.com/en-us/library/windows/desktop/dd183374(v=vs.85).aspx
     // BITMAPINFOHEADER: http://msdn.microsoft.com/en-us/library/dd183376.aspx
@@ -245,6 +243,25 @@ var Canvas2Image = (function () {
     return strEncoded;
   };
 
+  let imageList = [];
+  // 下载全部图片
+  const allDownLoad = (cb = () => {}) => {
+    const zip = new JSZip();
+    const img = zip.folder(`watermark`);
+    imageList.forEach(function (obj, index) {
+      // base64Str 是  data:image/png;base64,ifjskfixvfdsf..fd 格式的
+      // 去掉 data:image/png;base64,
+      // let base64Data = obj.base64Str.substring(22);
+      img.file(`watermark(${index}).jpg`, obj);
+    });
+
+    // 生成ZIP文件
+    zip.generateAsync({ type: "blob" }).then((content) => {
+      //  FileSaver.js  功能
+      saveAs(content, `watermark.zip`);
+      cb();
+    });
+  };
   /**
    * saveAsImage
    * @param canvasElement
@@ -252,7 +269,7 @@ var Canvas2Image = (function () {
    * @param {Number} [optional] png width
    * @param {Number} [optional] png height
    */
-  const saveAsImage = function (canvas, width, height, type, onOk) {
+  const saveAsImage = function (canvas, width, height, type, saveType, isEnd) {
     if ($support.canvas && $support.dataURL) {
       if (typeof canvas === "string") {
         canvas = document.getElementById(canvas);
@@ -264,11 +281,23 @@ var Canvas2Image = (function () {
       if (/bmp/.test(type)) {
         let data = getImageData(scaleCanvas(canvas, width, height));
         let strData = genBitmapImage(data);
-        saveFile(makeURI(strData, downloadMime), onOk);
+        saveFile(makeURI(strData, downloadMime));
       } else {
-        let strData = getDataURL(canvas, type, width, height);
         // saveFile(strData.replace(type, downloadMime));
-        saveFile(strData, onOk);
+        if (saveType === 'more') {
+          getDataBlob(canvas, width, height, (blob) => {
+            imageList.push(blob);
+            if (isEnd) {
+              allDownLoad(() => {
+                imageList = [];
+              });
+            }
+          });
+
+        } else {
+          let strData = getDataURL(canvas, type, width, height);
+          saveFile(strData);
+        }
       }
     }
   };
@@ -296,11 +325,11 @@ var Canvas2Image = (function () {
 
   return {
     saveAsImage: saveAsImage,
-    saveAsPNG: function (canvas, width, height) {
+    saveAsPNG: function (canvas, width, height, saveType, isEnd) {
       return saveAsImage(canvas, width, height, "png");
     },
-    saveAsJPEG: function (canvas, width, height, onOK) {
-      return saveAsImage(canvas, width, height, "jpeg", onOK);
+    saveAsJPEG: function (canvas, width, height, saveType, isEnd) {
+      return saveAsImage(canvas, width, height, "jpeg", saveType, isEnd);
     },
     saveAsGIF: function (canvas, width, height) {
       return saveAsImage(canvas, width, height, "gif");

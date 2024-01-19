@@ -43,7 +43,7 @@ export default class IndexPage extends React.Component {
         <Block style={{ margin: "15px 0" }} horizontal="center">
           在各种证件上添加“仅用于办理XXXX，他用无效。”，防止证件被他人盗用！
         </Block>
-        <Block horizontal="center">
+        <Block horizontal="center" style={{ marginBottom: 10 }}>
           <a
             target="_blank"
             rel="noopener noreferrer"
@@ -52,6 +52,9 @@ export default class IndexPage extends React.Component {
           >
             参考：不加签注，身份证复印件会让你“危机四伏”
           </a>
+        </Block>
+        <Block horizontal="center">
+          温馨提示：本项目支持批量上传图片添加水印，下载为zip包，手机微信可使用《金山文档》小程序在线解压缩，手机浏览器有自带解压缩，点击保存图片后稍等片刻即下载。
         </Block>
         <Main />
         <Donation />
