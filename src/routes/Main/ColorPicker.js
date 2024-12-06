@@ -2,6 +2,8 @@ import React from "react";
 import Block from "dxc-flex";
 import { BlockPicker } from "react-color";
 
+const colors = ['#000000', '#D9E3F0', '#F47373', '#697689', '#37D67A', '#2CCCE4', '#555555', '#dce775', '#ff8a65', '#ba68c8']
+
 export default class ColorPicker extends React.Component {
   state = { displayColorPicker: true };
   handleClick = () => {
@@ -32,7 +34,7 @@ export default class ColorPicker extends React.Component {
                 style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0 }}
               />,
               <div key="1" style={{ position: "absolute", top: 32, left: 10 }}>
-                <BlockPicker onChange={onChange} color={color} />
+                <BlockPicker colors={colors} onChange={onChange} color={color} />
               </div>
             ]
           : null}
